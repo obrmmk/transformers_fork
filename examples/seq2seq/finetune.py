@@ -98,7 +98,7 @@ class SummarizationModule(BaseTransformer):
             freeze_params(self.model.get_encoder())
             assert_all_frozen(self.model.get_encoder())
 
-        self.hparams.git_sha = get_git_info()["repo_sha"]
+#         self.hparams.git_sha = get_git_info()["repo_sha"]
         self.num_workers = hparams.num_workers
         self.decoder_start_token_id = None  # default to config
         if self.model.config.decoder_start_token_id is None and isinstance(self.tokenizer, MBartTokenizer):
