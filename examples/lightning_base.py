@@ -175,7 +175,7 @@ class BaseTransformer(pl.LightningModule):
         effective_batch_size = self.hparams.train_batch_size * self.hparams.accumulate_grad_batches * num_devices
         return (self.dataset_size / effective_batch_size) * self.hparams.max_epochs
 
-    def setup(self, mode):
+    def setup(self, mode, stage=None):
         if mode == "test":
             self.dataset_size = len(self.test_dataloader().dataset)
         else:
