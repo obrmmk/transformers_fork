@@ -73,7 +73,7 @@ class BaseTransformer(pl.LightningModule):
         self,
         hparams: argparse.Namespace,
         num_labels=None,
-        mode="base",
+        stage="base",
         config=None,
         tokenizer=None,
         model=None,
@@ -112,7 +112,7 @@ class BaseTransformer(pl.LightningModule):
             )
         else:
             self.tokenizer: PreTrainedTokenizer = tokenizer
-        self.model_type = MODEL_MODES[mode]
+        self.model_type = MODEL_MODES[stage]
         if model is None:
             self.model = self.model_type.from_pretrained(
                 self.hparams.model_name_or_path,
@@ -175,8 +175,8 @@ class BaseTransformer(pl.LightningModule):
         effective_batch_size = self.hparams.train_batch_size * self.hparams.accumulate_grad_batches * num_devices
         return (self.dataset_size / effective_batch_size) * self.hparams.max_epochs
 
-    def setup(self, mode):
-        if mode == "test":
+    def setup(self, stage):
+        if stage == "test":
             self.dataset_size = len(self.test_dataloader().dataset)
         else:
             self.train_loader = self.get_dataloader("train", self.hparams.train_batch_size, shuffle=True)
@@ -194,11 +194,11 @@ class BaseTransformer(pl.LightningModule):
     def test_dataloader(self):
         return self.get_dataloader("test", self.hparams.eval_batch_size, shuffle=False)
 
-    def _feature_file(self, mode):
+    def _feature_file(self, stage):
         return os.path.join(
             self.hparams.data_dir,
             "cached_{}_{}_{}".format(
-                mode,
+                stage,
                 list(filter(None, self.hparams.model_name_or_path.split("/"))).pop(),
                 str(self.hparams.max_seq_length),
             ),
@@ -363,7 +363,7 @@ def generic_train(
     # add custom checkpoints
     if checkpoint_callback is None:
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
-            filepath=args.output_dir, prefix="checkpoint", monitor="val_loss", mode="min", save_top_k=1
+            filepath=args.output_dir, prefix="checkpoint", monitor="val_loss", stage="min", save_top_k=1
         )
     if early_stopping_callback:
         extra_callbacks.append(early_stopping_callback)
