@@ -384,10 +384,10 @@ def generic_train(
 
     trainer = pl.Trainer.from_argparse_args(
         args,
-#         weights_summary=None,
+        weights_summary=None,
         callbacks=[logging_callback] + extra_callbacks,
         logger=logger,
-#         checkpoint_callback=checkpoint_callback,
+        checkpoint_callback=checkpoint_callback,
         **train_params,
     )
 
